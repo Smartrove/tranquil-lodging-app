@@ -23,25 +23,38 @@ export const deleteCabin = async (id) => {
   return cabins;
 };
 
-export const createCabin = async (newCabin) => {
+export const createEditCabin = async (newCabin, id) => {
+  const hasPathName =
+    typeof newCabin.image === "string" &&
+    newCabin?.image?.startsWith(supabaseUrl);
+
   //create a unique image name
   const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll(
     "/",
     ""
   );
 
-  const pathName = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
-  const { data: cabins, error } = await supabase
-    .from("cabins")
-    .insert([{ ...newCabin, image: pathName }])
-    .select();
+  const pathName = hasPathName
+    ? newCabin.image
+    : `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+  let query = supabase.from("cabins");
+
+  //create lodge
+
+  if (!id) query = query.insert([{ ...newCabin, image: pathName }]);
+
+  //dont
+
+  if (id) query = query.update({ ...newCabin, image: pathName }).eq("id", id);
+
+  const { data: cabins, error } = await query.select().single();
 
   if (error) {
     toast.error("lodges could not be created");
   }
 
   //upload image here
-
+  if (hasPathName) return cabins;
   const { error: storageError } = await supabase.storage
     .from("cabin-images")
     .upload(imageName, newCabin.image);
