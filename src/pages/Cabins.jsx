@@ -4,11 +4,9 @@ import Row from "../ui/Row";
 import { getCabins } from "../services/apiCabins";
 import CabinTable from "../features/cabins/CabinTable";
 import { toast } from "react-hot-toast";
-import Button from "../ui/Button";
-import CreateCabinForm from "../features/cabins/CreateCabinForm";
+import AddCabins from "../features/cabins/AddCabins";
 
 function Cabins() {
-  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     getCabins()
       .then((data) => {
@@ -28,11 +26,7 @@ function Cabins() {
       </Row>
       <Row>
         <CabinTable />
-
-        <Button onClick={() => setShowForm((showButton) => !showForm)}>
-          Add New Cabin
-        </Button>
-        {showForm && <CreateCabinForm />}
+        <AddCabins />
       </Row>
     </>
   );
